@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>칼림바 연주하기</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #FBF6EE;
+      --green: #6FAE4A;
+      --green-dark: #5C9A3C;
+      --brown: #5A4034;
+      --silver: #E2E2E6;
+      --silver-dark: #A9A9B0;
+      --glow: #FFD66B;
+      --ink: #3A2E28;
+      --coral: #E88F76;
+      --sky: #9AC9D6;
+      --cream-line: rgba(90, 64, 52, 0.08);
+      --shadow: 0 18px 42px rgba(69, 45, 34, 0.18);
+      --stage-ratio: 218 / 277;
+      --band-left: 7%;
+      --band-right: 93%;
+      --band-top: 6%;
+      --band-bottom: 60%;
+      color-scheme: light;
+      font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", system-ui, sans-serif;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
+      background:
+        linear-gradient(145deg, rgba(21, 19, 15, 0.96), rgba(48, 36, 30, 0.98)),
+        #15130F;
+      color: var(--ink);
+      letter-spacing: 0;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    #app {
+      container-type: size;
+      position: relative;
+      width: min(100vw, calc(100dvh * 9 / 16));
+      height: min(100dvh, calc(100vw * 16 / 9));
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(251, 246, 238, 0.98), rgba(255, 239, 219, 0.94)),
+        var(--bg);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      isolation: isolate;
+    }
+
+    #app::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      background: rgba(251, 246, 238, 0.72);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease;
+    }
+
+    #app.is-switching::after {
+      opacity: 1;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 260ms ease, transform 260ms ease;
+    }
+
+    .screen[hidden] {
+      display: none;
+    }
+
+    .select-screen {
+      padding: clamp(18px, 3.1cqh, 28px);
+      gap: clamp(10px, 1.7cqh, 18px);
+      background:
+        repeating-linear-gradient(135deg, rgba(111, 174, 74, 0.08) 0 1px, transparent 1px 18px),
+        linear-gradient(180deg, #FFF9F1 0%, #F9F1E5 56%, #ECF5E4 100%);
+    }
+
+    .select-header {
+      flex: 0 0 auto;
+      display: grid;
+      gap: clamp(4px, 0.8cqh, 8px);
+      padding-top: max(env(safe-area-inset-top), clamp(2px, 0.8cqh, 8px));
+      text-align: center;
+    }
+
+    .app-title {
+      margin: 0;
+      color: var(--brown);
+      font-size: clamp(1.45rem, 4.2cqh, 2.05rem);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .select-copy {
+      margin: 0;
+      color: rgba(58, 46, 40, 0.72);
+      font-size: clamp(0.88rem, 2cqh, 1.05rem);
+      line-height: 1.35;
+    }
+
+    .choice-grid {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(12px, 2.2cqh, 20px);
+    }
+
+    .choice-card {
+      position: relative;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      gap: clamp(8px, 1.6cqh, 14px);
+      width: 100%;
+      min-height: 0;
+      overflow: hidden;
+      border: 2px solid rgba(111, 174, 74, 0.22);
+      border-radius: clamp(18px, 4cqh, 28px);
+      padding: clamp(12px, 2.2cqh, 20px);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 250, 241, 0.96)),
+        #FFFDF8;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      outline: 0;
+      transition: transform 220ms ease, box-shadow 220ms ease, opacity 220ms ease, filter 220ms ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .choice-card:hover,
+    .choice-card:focus-visible {
+      transform: translateY(-4px) scale(1.025);
+      box-shadow: 0 24px 58px rgba(69, 45, 34, 0.22);
+    }
+
+    .choice-card:focus-visible,
+    .top-button:focus-visible,
+    .guide-toggle:focus-visible,
+    .tine:focus-visible {
+      outline: 3px solid rgba(255, 214, 107, 0.95);
+      outline-offset: 3px;
+    }
+
+    .choice-card.is-picked {
+      transform: scale(1.035);
+      border-color: var(--green);
+      filter: saturate(1.16);
+    }
+
+    .choice-card.is-muted {
+      opacity: 0.42;
+      filter: saturate(0.62);
+    }
+
+    .choice-image-wrap {
+      display: grid;
+      place-items: center;
+      min-height: 0;
+    }
+
+    .choice-image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      user-select: none;
+      -webkit-user-drag: none;
+      filter: drop-shadow(0 16px 22px rgba(90, 64, 52, 0.16));
+    }
+
+    .choice-label {
+      justify-self: center;
+      min-width: min(75%, 18rem);
+      max-width: 100%;
+      padding: clamp(9px, 1.55cqh, 13px) clamp(18px, 4cqw, 28px);
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--green), var(--green-dark));
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(92, 154, 60, 0.27);
+      font-weight: 800;
+      font-size: clamp(1rem, 2.4cqh, 1.22rem);
+      line-height: 1.1;
+      text-align: center;
+      white-space: normal;
+    }
+
+    .ripple {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      pointer-events: none;
+      background: rgba(255, 214, 107, 0.6);
+      transform: translate(-50%, -50%) scale(1);
+      animation: ripple 520ms ease-out forwards;
+    }
+
+    .play-screen {
+      background:
+        repeating-linear-gradient(90deg, rgba(90, 64, 52, 0.055) 0 1px, transparent 1px 22px),
+        linear-gradient(180deg, #F8F0E5 0%, #F5E7D8 58%, #E7F0DE 100%);
+    }
+
+    .top-bar {
+      flex: 0 0 auto;
+      min-height: clamp(54px, 9.4cqh, 76px);
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: clamp(8px, 1.8cqw, 14px);
+      padding: max(env(safe-area-inset-top), clamp(10px, 1.9cqh, 16px)) clamp(12px, 3cqw, 20px) clamp(8px, 1.4cqh, 12px);
+      border-bottom: 1px solid var(--cream-line);
+      background: rgba(255, 250, 242, 0.76);
+      backdrop-filter: blur(10px);
+      z-index: 4;
+    }
+
+    .top-button,
+    .guide-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--brown);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(90, 64, 52, 0.16);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 180ms ease, filter 180ms ease;
+    }
+
+    .top-button {
+      width: clamp(40px, 8.8cqw, 50px);
+      padding: 0;
+      font-size: clamp(1rem, 2.2cqh, 1.2rem);
+      line-height: 1;
+    }
+
+    .top-button:hover,
+    .guide-toggle:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+
+    .play-title {
+      min-width: 0;
+      margin: 0;
+      color: var(--brown);
+      font-size: clamp(1rem, 2.45cqh, 1.26rem);
+      font-weight: 900;
+      line-height: 1.1;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .volume-control {
+      display: grid;
+      grid-template-columns: auto minmax(60px, 11cqw);
+      align-items: center;
+      gap: clamp(4px, 1cqw, 8px);
+      color: var(--brown);
+      font-size: clamp(0.75rem, 1.6cqh, 0.9rem);
+      font-weight: 800;
+    }
+
+    .volume-control input {
+      width: 100%;
+      accent-color: var(--green);
+    }
+
+    .stage-wrap {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      padding: clamp(8px, 1.8cqh, 18px) clamp(10px, 2.7cqw, 18px);
+    }
+
+    .kalimba-stage {
+      position: relative;
+      height: 100%;
+      max-height: 100%;
+      max-width: 100%;
+      aspect-ratio: var(--stage-ratio);
+      margin: auto;
+      filter: drop-shadow(0 24px 26px rgba(72, 48, 35, 0.18));
+    }
+
+    .kalimba-photo {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: auto;
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    .tine-layer {
+      position: absolute;
+      left: var(--band-left);
+      top: var(--band-top);
+      width: calc(var(--band-right) - var(--band-left));
+      height: calc(var(--band-bottom) - var(--band-top));
+      pointer-events: none;
+    }
+
+    .tine {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      border: 0;
+      border-radius: clamp(7px, 1.4cqw, 12px);
+      background: transparent;
+      cursor: pointer;
+      pointer-events: auto;
+      touch-action: manipulation;
+      outline: 0;
+    }
+
+    .tine::before {
+      content: "";
+      position: absolute;
+      inset: 1% 6%;
+      border-radius: inherit;
+      background: linear-gradient(180deg, rgba(255, 214, 107, 0.62), rgba(255, 214, 107, 0.1));
+      box-shadow: 0 0 28px rgba(255, 214, 107, 0.82);
+      opacity: 0;
+      transform: scaleY(0.72);
+      transition: opacity 140ms ease, transform 140ms ease;
+    }
+
+    .tine::after {
+      content: attr(data-label);
+      position: absolute;
+      left: 50%;
+      top: 46%;
+      transform: translate(-50%, -50%) scale(0.82);
+      width: max-content;
+      max-width: 68px;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: rgba(58, 46, 40, 0.86);
+      color: #fff;
+      font-size: clamp(0.62rem, 1.45cqh, 0.75rem);
+      line-height: 1.1;
+      opacity: 0;
+      pointer-events: none;
+      white-space: nowrap;
+      transition: opacity 140ms ease, transform 140ms ease;
+    }
+
+    .tine.is-active::before,
+    .tine:focus-visible::before {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+
+    .tine.is-active::after,
+    .tine:focus-visible::after {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .note-badge {
+      position: absolute;
+      left: 50%;
+      bottom: clamp(12px, 2.4cqh, 22px);
+      z-index: 5;
+      max-width: calc(100% - 34px);
+      padding: clamp(8px, 1.5cqh, 12px) clamp(14px, 3.2cqw, 20px);
+      border-radius: 999px;
+      background: rgba(58, 46, 40, 0.92);
+      color: #fff;
+      box-shadow: 0 14px 28px rgba(58, 46, 40, 0.22);
+      font-size: clamp(0.86rem, 1.9cqh, 1rem);
+      font-weight: 800;
+      line-height: 1.15;
+      text-align: center;
+      opacity: 0;
+      transform: translate(-50%, 10px);
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .note-badge.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .guide-panel {
+      flex: 0 0 auto;
+      display: grid;
+      gap: clamp(8px, 1.25cqh, 12px);
+      max-height: 35%;
+      padding: clamp(10px, 2cqh, 16px) clamp(14px, 3.4cqw, 22px) max(env(safe-area-inset-bottom), clamp(12px, 2.4cqh, 20px));
+      border-top: 1px solid var(--cream-line);
+      background: rgba(255, 250, 242, 0.83);
+      backdrop-filter: blur(10px);
+      z-index: 3;
+    }
+
+    .guide-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: clamp(8px, 2cqw, 14px);
+    }
+
+    .guide-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-width: 0;
+      margin: 0;
+      font-size: clamp(0.76rem, 1.7cqh, 0.92rem);
+      line-height: 1.25;
+      color: rgba(58, 46, 40, 0.8);
+      font-weight: 750;
+    }
+
+    .guide-pill {
+      display: inline-flex;
+      align-items: center;
+      max-width: 100%;
+      min-height: 26px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(111, 174, 74, 0.12);
+      color: var(--brown);
+      white-space: normal;
+    }
+
+    .guide-toggle {
+      min-width: clamp(58px, 13cqw, 76px);
+      padding: 0 12px;
+      background: var(--green-dark);
+      font-size: clamp(0.74rem, 1.65cqh, 0.88rem);
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .mapping-table {
+      display: none;
+      min-height: 0;
+      overflow: auto;
+      padding: clamp(8px, 1.4cqh, 12px);
+      border: 1px solid rgba(111, 174, 74, 0.24);
+      border-radius: clamp(14px, 2.7cqh, 20px);
+      background: rgba(255, 255, 255, 0.74);
+    }
+
+    .mapping-table.is-open {
+      display: grid;
+      gap: clamp(7px, 1cqh, 10px);
+    }
+
+    .mapping-section {
+      display: grid;
+      grid-template-columns: clamp(48px, 12cqw, 64px) minmax(0, 1fr);
+      align-items: start;
+      gap: 8px;
+    }
+
+    .mapping-title {
+      color: var(--brown);
+      font-size: clamp(0.72rem, 1.6cqh, 0.86rem);
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .mapping-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .key-chip {
+      display: inline-grid;
+      grid-template-columns: auto auto;
+      align-items: center;
+      gap: 5px;
+      max-width: 100%;
+      min-height: 25px;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: rgba(226, 226, 230, 0.58);
+      color: var(--ink);
+      font-size: clamp(0.68rem, 1.5cqh, 0.8rem);
+      line-height: 1.05;
+      white-space: nowrap;
+    }
+
+    .key-chip kbd {
+      min-width: 1.5em;
+      padding: 2px 5px;
+      border-radius: 7px;
+      background: #fff;
+      border: 1px solid rgba(90, 64, 52, 0.12);
+      color: var(--brown);
+      font: inherit;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @keyframes ripple {
+      to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(24);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 1ms !important;
+      }
+    }
+
+    @supports not (height: 100dvh) {
+      #app {
+        width: min(100vw, calc(100vh * 9 / 16));
+        height: min(100vh, calc(100vw * 16 / 9));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="app" aria-label="칼림바 연주 웹앱">
+    <section id="selectScreen" class="screen select-screen" aria-labelledby="selectTitle">
+      <header class="select-header">
+        <h1 id="selectTitle" class="app-title">칼림바 연주하기</h1>
+        <p class="select-copy">연주할 칼림바를 골라주세요</p>
+      </header>
+
+      <div class="choice-grid" aria-label="칼림바 종류 선택">
+        <button class="choice-card" type="button" data-choice="17" aria-label="17키 칼림바 선택">
+          <span class="choice-image-wrap" aria-hidden="true">
+            <img class="choice-image" src="assets/char-17.png" alt="">
+          </span>
+          <span class="choice-label">17키 칼림바</span>
+        </button>
+
+        <button class="choice-card" type="button" data-choice="21" aria-label="21키 칼림바 선택">
+          <span class="choice-image-wrap" aria-hidden="true">
+            <img class="choice-image" src="assets/char-21.png" alt="">
+          </span>
+          <span class="choice-label">21키 칼림바</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="playScreen" class="screen play-screen" aria-labelledby="playTitle" hidden>
+      <header class="top-bar">
+        <button id="backButton" class="top-button" type="button" aria-label="다시 선택">←</button>
+        <h2 id="playTitle" class="play-title">17키 칼림바</h2>
+        <label class="volume-control">
+          <span aria-hidden="true">음량</span>
+          <input id="volumeInput" type="range" min="0" max="1" step="0.01" value="0.78" aria-label="음량">
+        </label>
+      </header>
+
+      <div class="stage-wrap">
+        <div id="kalimbaStage" class="kalimba-stage">
+          <img id="kalimbaPhoto" class="kalimba-photo" src="assets/play-17.png" alt="17키 칼림바 사진">
+          <div id="tineLayer" class="tine-layer" aria-label="칼림바 투명 건반"></div>
+        </div>
+        <div id="noteBadge" class="note-badge" aria-hidden="true"></div>
+      </div>
+
+      <aside class="guide-panel" aria-label="키 안내">
+        <div class="guide-row">
+          <p id="guideSummary" class="guide-summary"></p>
+          <button id="guideToggle" class="guide-toggle" type="button" aria-expanded="false" aria-controls="mappingTable">표 보기</button>
+        </div>
+        <div id="mappingTable" class="mapping-table" aria-label="키보드 매핑 표"></div>
+      </aside>
+
+      <div id="liveRegion" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    </section>
+  </main>
+
+  <script>
+    const ORDER_17 = ["D6", "B5", "G5", "E5", "C5", "A4", "F4", "D4", "C4", "E4", "G4", "B4", "D5", "F5", "A5", "C6", "E6"];
+    const ORDER_21 = ["D6", "B5", "G5", "E5", "C5", "A4", "F4", "D4", "B3", "G3", "F3", "A3", "C4", "E4", "G4", "B4", "D5", "F5", "A5", "C6", "E6"];
+
+    const NOTE = {
+      F3: [174.61, ".4"], G3: [196.00, ".5"], A3: [220.00, ".6"], B3: [246.94, ".7"],
+      C4: [261.63, "1"], D4: [293.66, "2"], E4: [329.63, "3"], F4: [349.23, "4"],
+      G4: [392.00, "5"], A4: [440.00, "6"], B4: [493.88, "7"],
+      C5: [523.25, "1'"], D5: [587.33, "2'"], E5: [659.25, "3'"], F5: [698.46, "4'"],
+      G5: [783.99, "5'"], A5: [880.00, "6'"], B5: [987.77, "7'"],
+      C6: [1046.50, "1''"], D6: [1174.66, "2''"], E6: [1318.51, "3''"]
+    };
+
+    const MAP = {
+      MID: { 1: "C4", 2: "D4", 3: "E4", 4: "F4", 5: "G4", 6: "A4", 7: "B4" },
+      HIGH: { 1: "C5", 2: "D5", 3: "E5", 4: "F5", 5: "G5", 6: "A5", 7: "B5", 8: "C6", 9: "D6", 0: "E6" },
+      LOW: { 4: "F3", 5: "G3", 6: "A3", 7: "B3" }
+    };
+
+    const CONFIG = {
+      17: {
+        label: "17키 칼림바",
+        image: "assets/play-17.png",
+        alt: "17키 주황 고양이 칼림바 사진",
+        order: ORDER_17,
+        ratio: "218 / 277",
+        band: { left: "7%", right: "93%", top: "6%", bottom: "60%" }
+      },
+      21: {
+        label: "21키 칼림바",
+        image: "assets/play-21.png",
+        alt: "21키 벚꽃 우드 칼림바 사진",
+        order: ORDER_21,
+        ratio: "232 / 297",
+        band: { left: "6%", right: "94%", top: "6%", bottom: "64%" }
+      }
+    };
+
+    const SOLFEGE = { C: "도", D: "레", E: "미", F: "파", G: "솔", A: "라", B: "시" };
+    const SHORTCUTS = {
+      C4: "1", D4: "2", E4: "3", F4: "4", G4: "5", A4: "6", B4: "7",
+      C5: "⇧1", D5: "⇧2", E5: "⇧3", F5: "⇧4", G5: "⇧5", A5: "⇧6", B5: "⇧7",
+      C6: "⇧8", D6: "⇧9", E6: "⇧0",
+      F3: "⌃4", G3: "⌃5", A3: "⌃6", B3: "⌃7"
+    };
+
+    const app = document.querySelector("#app");
+    const selectScreen = document.querySelector("#selectScreen");
+    const playScreen = document.querySelector("#playScreen");
+    const choiceCards = [...document.querySelectorAll(".choice-card")];
+    const backButton = document.querySelector("#backButton");
+    const playTitle = document.querySelector("#playTitle");
+    const kalimbaStage = document.querySelector("#kalimbaStage");
+    const kalimbaPhoto = document.querySelector("#kalimbaPhoto");
+    const tineLayer = document.querySelector("#tineLayer");
+    const noteBadge = document.querySelector("#noteBadge");
+    const liveRegion = document.querySelector("#liveRegion");
+    const volumeInput = document.querySelector("#volumeInput");
+    const guideSummary = document.querySelector("#guideSummary");
+    const guideToggle = document.querySelector("#guideToggle");
+    const mappingTable = document.querySelector("#mappingTable");
+
+    let currentType = "17";
+    let audioContext = null;
+    let masterGain = null;
+    let currentVolume = Number(volumeInput.value);
+    let badgeTimer = 0;
+
+    function digitOf(code) {
+      const match = /^(?:Digit|Numpad)([0-9])$/.exec(code);
+      return match ? match[1] : null;
+    }
+
+    function resolveShortcut(e, type) {
+      if (e.altKey || e.metaKey) return null;
+      if (e.shiftKey && e.ctrlKey) return null;
+      const digit = digitOf(e.code);
+      if (digit === null) return null;
+      if (e.shiftKey) return MAP.HIGH[digit] ?? null;
+      if (e.ctrlKey) return type === "21" ? (MAP.LOW[digit] ?? null) : null;
+      return MAP.MID[digit] ?? null;
+    }
+
+    function isEditableTarget(target) {
+      if (!target) return false;
+      const tag = target.tagName;
+      return target.isContentEditable || tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+    }
+
+    function shouldPreventSilentCtrl(event) {
+      if (event.altKey || event.metaKey || event.shiftKey || !event.ctrlKey) return false;
+      return digitOf(event.code) !== null;
+    }
+
+    function ensureAudio() {
+      if (!audioContext) {
+        const AudioCtor = window.AudioContext || window.webkitAudioContext;
+        audioContext = new AudioCtor();
+        masterGain = audioContext.createGain();
+        masterGain.gain.value = currentVolume;
+        masterGain.connect(audioContext.destination);
+      }
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+      return audioContext;
+    }
+
+    function setVolume(value) {
+      currentVolume = Math.max(0, Math.min(1, Number(value)));
+      if (masterGain && audioContext) {
+        masterGain.gain.setTargetAtTime(currentVolume, audioContext.currentTime, 0.015);
+      }
+    }
+
+    function frequencyOf(noteId) {
+      return NOTE[noteId]?.[0] ?? 0;
+    }
+
+    function playSound(noteId) {
+      const frequency = frequencyOf(noteId);
+      if (!frequency) return;
+      const ctx = ensureAudio();
+      const now = ctx.currentTime;
+      const midi = 69 + 12 * Math.log2(frequency / 440);
+      const duration = Math.max(1.4, 2.6 - (midi - 53) * 0.025);
+      const filter = ctx.createBiquadFilter();
+      const envelope = ctx.createGain();
+
+      filter.type = "lowpass";
+      filter.frequency.value = Math.min(7000, frequency * 8);
+      envelope.connect(filter);
+      filter.connect(masterGain);
+      envelope.gain.setValueAtTime(0.0001, now);
+      envelope.gain.exponentialRampToValueAtTime(0.9, now + 0.006);
+      envelope.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+      [[1, 1.0], [2, 0.45], [3.01, 0.22], [5.4, 0.08]].forEach(([multiple, gainValue]) => {
+        const oscillator = ctx.createOscillator();
+        const partialGain = ctx.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.value = frequency * multiple;
+        partialGain.gain.value = gainValue;
+        oscillator.connect(partialGain);
+        partialGain.connect(envelope);
+        oscillator.start(now);
+        oscillator.stop(now + duration + 0.1);
+      });
+    }
+
+    function noteName(noteId) {
+      const letter = noteId.slice(0, 1);
+      return `${SOLFEGE[letter] ?? letter} (${noteId})`;
+    }
+
+    function describeNote(noteId) {
+      const numberScore = NOTE[noteId]?.[1] ?? "";
+      return `${noteName(noteId)} · ${numberScore}`;
+    }
+
+    function shortcutFor(noteId, type) {
+      if (type === "17" && NOTE[noteId]?.[1]?.startsWith(".")) return "";
+      return SHORTCUTS[noteId] ?? "";
+    }
+
+    function showNoteBadge(noteId) {
+      const text = describeNote(noteId);
+      noteBadge.textContent = text;
+      liveRegion.textContent = `${text} 연주`;
+      noteBadge.classList.add("is-visible");
+      window.clearTimeout(badgeTimer);
+      badgeTimer = window.setTimeout(() => {
+        noteBadge.classList.remove("is-visible");
+      }, 850);
+    }
+
+    function activateTine(noteId) {
+      const tine = tineLayer.querySelector(`[data-note="${noteId}"]`);
+      if (!tine) return;
+      tine.classList.remove("is-active");
+      void tine.offsetWidth;
+      tine.classList.add("is-active");
+      window.setTimeout(() => tine.classList.remove("is-active"), 240);
+    }
+
+    function playNote(noteId) {
+      if (!NOTE[noteId]) return;
+      playSound(noteId);
+      activateTine(noteId);
+      showNoteBadge(noteId);
+    }
+
+    function createRipple(button, event) {
+      const rect = button.getBoundingClientRect();
+      const ripple = document.createElement("span");
+      ripple.className = "ripple";
+      ripple.style.left = `${event.clientX - rect.left}px`;
+      ripple.style.top = `${event.clientY - rect.top}px`;
+      button.append(ripple);
+      ripple.addEventListener("animationend", () => ripple.remove(), { once: true });
+    }
+
+    function clearChoiceState() {
+      choiceCards.forEach((card) => {
+        card.classList.remove("is-picked", "is-muted");
+      });
+    }
+
+    function chooseKalimba(type, event) {
+      choiceCards.forEach((card) => {
+        const picked = card.dataset.choice === type;
+        card.classList.toggle("is-picked", picked);
+        card.classList.toggle("is-muted", !picked);
+      });
+      if (event && "clientX" in event) createRipple(event.currentTarget, event);
+      window.setTimeout(() => {
+        switchWithFade(() => {
+          startPlay(type);
+          clearChoiceState();
+        });
+      }, 260);
+    }
+
+    function switchWithFade(callback) {
+      app.classList.add("is-switching");
+      window.setTimeout(() => {
+        callback();
+        window.setTimeout(() => app.classList.remove("is-switching"), 120);
+      }, 160);
+    }
+
+    function startPlay(type) {
+      currentType = type;
+      const config = CONFIG[type];
+      playTitle.textContent = config.label;
+      kalimbaPhoto.src = config.image;
+      kalimbaPhoto.alt = config.alt;
+      kalimbaStage.style.setProperty("--stage-ratio", config.ratio);
+      kalimbaStage.style.setProperty("--band-left", config.band.left);
+      kalimbaStage.style.setProperty("--band-right", config.band.right);
+      kalimbaStage.style.setProperty("--band-top", config.band.top);
+      kalimbaStage.style.setProperty("--band-bottom", config.band.bottom);
+      renderTines(config);
+      renderGuide(type);
+      selectScreen.hidden = true;
+      playScreen.hidden = false;
+      backButton.focus({ preventScroll: true });
+    }
+
+    function showSelect() {
+      playScreen.hidden = true;
+      selectScreen.hidden = false;
+      noteBadge.classList.remove("is-visible");
+      clearChoiceState();
+      choiceCards[0].focus({ preventScroll: true });
+    }
+
+    function renderTines(config) {
+      tineLayer.replaceChildren();
+      const width = 100 / config.order.length;
+      config.order.forEach((noteId, index) => {
+        const tine = document.createElement("button");
+        const shortcut = shortcutFor(noteId, currentType);
+        tine.type = "button";
+        tine.className = "tine";
+        tine.dataset.note = noteId;
+        tine.dataset.label = shortcut ? `${NOTE[noteId][1]} ${shortcut}` : NOTE[noteId][1];
+        tine.style.left = `${index * width}%`;
+        tine.style.width = `${width}%`;
+        tine.setAttribute("role", "button");
+        tine.setAttribute("aria-label", `${noteName(noteId)}, 단축키 ${shortcut || "없음"}`);
+        tine.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          playNote(noteId);
+        });
+        tineLayer.append(tine);
+      });
+    }
+
+    function mappingChips(items) {
+      return items.map(([key, note]) => (
+        `<span class="key-chip"><kbd>${key}</kbd><span>${note}</span></span>`
+      )).join("");
+    }
+
+    function renderGuide(type) {
+      const lowText = type === "21" ? "⌃4~7=저음" : "Ctrl 저음 없음";
+      guideSummary.innerHTML = [
+        "<span class=\"guide-pill\">1~7=가운데</span>",
+        "<span class=\"guide-pill\">⇧1~0=높은음</span>",
+        `<span class="guide-pill">${lowText}</span>`
+      ].join("");
+
+      const mid = [["1", "C4"], ["2", "D4"], ["3", "E4"], ["4", "F4"], ["5", "G4"], ["6", "A4"], ["7", "B4"]];
+      const high = [["⇧1", "C5"], ["⇧2", "D5"], ["⇧3", "E5"], ["⇧4", "F5"], ["⇧5", "G5"], ["⇧6", "A5"], ["⇧7", "B5"], ["⇧8", "C6"], ["⇧9", "D6"], ["⇧0", "E6"]];
+      const low = [["⌃4", "F3"], ["⌃5", "G3"], ["⌃6", "A3"], ["⌃7", "B3"]];
+      const sections = [
+        ["가운데", mid],
+        ["높은음", high]
+      ];
+      if (type === "21") sections.push(["낮은음", low]);
+
+      mappingTable.innerHTML = sections.map(([title, items]) => `
+        <div class="mapping-section">
+          <div class="mapping-title">${title}</div>
+          <div class="mapping-chips">${mappingChips(items)}</div>
+        </div>
+      `).join("");
+    }
+
+    function toggleGuide() {
+      const isOpen = !mappingTable.classList.contains("is-open");
+      mappingTable.classList.toggle("is-open", isOpen);
+      guideToggle.setAttribute("aria-expanded", String(isOpen));
+      guideToggle.textContent = isOpen ? "접기" : "표 보기";
+    }
+
+    function runSelfTests() {
+      const cases = [
+        ["Digit1 mid 17", { code: "Digit1", shiftKey: false, ctrlKey: false, altKey: false, metaKey: false }, "17", "C4"],
+        ["Digit7 mid", { code: "Digit7", shiftKey: false, ctrlKey: false, altKey: false, metaKey: false }, "21", "B4"],
+        ["Digit8 silent", { code: "Digit8", shiftKey: false, ctrlKey: false, altKey: false, metaKey: false }, "21", null],
+        ["Shift Digit1", { code: "Digit1", shiftKey: true, ctrlKey: false, altKey: false, metaKey: false }, "17", "C5"],
+        ["Shift Digit0", { code: "Digit0", shiftKey: true, ctrlKey: false, altKey: false, metaKey: false }, "21", "E6"],
+        ["Ctrl Digit4 17", { code: "Digit4", shiftKey: false, ctrlKey: true, altKey: false, metaKey: false }, "17", null],
+        ["Ctrl Digit4 21", { code: "Digit4", shiftKey: false, ctrlKey: true, altKey: false, metaKey: false }, "21", "F3"],
+        ["Ctrl Digit7 21", { code: "Digit7", shiftKey: false, ctrlKey: true, altKey: false, metaKey: false }, "21", "B3"],
+        ["Ctrl Shift Digit4", { code: "Digit4", shiftKey: true, ctrlKey: true, altKey: false, metaKey: false }, "21", null],
+        ["Alt Digit1", { code: "Digit1", shiftKey: false, ctrlKey: false, altKey: true, metaKey: false }, "21", null],
+        ["Meta Digit1", { code: "Digit1", shiftKey: false, ctrlKey: false, altKey: false, metaKey: true }, "21", null],
+        ["Numpad1", { code: "Numpad1", shiftKey: false, ctrlKey: false, altKey: false, metaKey: false }, "17", "C4"]
+      ];
+      const errors = [];
+      cases.forEach(([name, eventLike, type, expected]) => {
+        const actual = resolveShortcut(eventLike, type);
+        if (actual !== expected) errors.push(`${name}: expected ${expected}, got ${actual}`);
+      });
+      if (ORDER_17.length !== 17) errors.push(`ORDER_17 length ${ORDER_17.length}`);
+      if (ORDER_21.length !== 21) errors.push(`ORDER_21 length ${ORDER_21.length}`);
+      [...ORDER_17, ...ORDER_21].forEach((noteId) => {
+        if (!NOTE[noteId]) errors.push(`Missing NOTE ${noteId}`);
+      });
+      document.documentElement.dataset.selfTest = errors.length ? "failed" : "passed";
+      if (errors.length) {
+        console.error("Kalimba self-test failed", errors);
+      } else {
+        console.info("Kalimba self-test passed");
+      }
+      return errors;
+    }
+
+    choiceCards.forEach((card) => {
+      card.addEventListener("click", (event) => chooseKalimba(card.dataset.choice, event));
+    });
+
+    backButton.addEventListener("click", () => switchWithFade(showSelect));
+    guideToggle.addEventListener("click", toggleGuide);
+    volumeInput.addEventListener("input", (event) => setVolume(event.target.value));
+
+    window.addEventListener("keydown", (event) => {
+      if (playScreen.hidden || event.repeat || isEditableTarget(event.target)) return;
+      const noteId = resolveShortcut(event, currentType);
+      if (noteId) {
+        event.preventDefault();
+        playNote(noteId);
+        return;
+      }
+      if (shouldPreventSilentCtrl(event)) {
+        event.preventDefault();
+      }
+    });
+
+    renderGuide(currentType);
+    runSelfTests();
+    window.kalimbaApp = { digitOf, resolveShortcut, playNote, runSelfTests };
+  </script>
+</body>
+</html>
