@@ -213,6 +213,7 @@
       aspect-ratio: 1.18;
       filter: drop-shadow(0 8px 10px rgba(90, 64, 52, 0.16));
       pointer-events: none;
+      animation: labFloatBox 1800ms ease-in-out infinite alternate;
     }
 
     .top-bar .header-mascot {
@@ -302,6 +303,29 @@
       outline: 0;
       transition: transform 220ms ease, box-shadow 220ms ease, opacity 220ms ease, filter 220ms ease;
       -webkit-tap-highlight-color: transparent;
+    }
+
+    .choice-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(105deg, transparent 22%, rgba(255, 255, 255, 0.62) 47%, transparent 72%);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-115%) rotate(0.001deg);
+    }
+
+    .choice-card:hover::before,
+    .choice-card:focus-visible::before,
+    .choice-card.is-picked::before {
+      opacity: 1;
+      animation: labShimmerSweep 950ms ease-in-out;
+    }
+
+    .choice-card > * {
+      position: relative;
+      z-index: 2;
     }
 
     .choice-card:hover,
@@ -592,6 +616,15 @@
       animation-delay: 220ms;
     }
 
+    .tine-svg-effect .svg-burst-dot {
+      fill: rgba(255, 255, 255, 0.96);
+      filter: drop-shadow(0 0 5px rgba(255, 78, 156, 0.92));
+      opacity: 0.96;
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: labBurstPop 620ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
     .tine::after {
       content: attr(data-label);
       position: absolute;
@@ -657,15 +690,32 @@
       font-weight: 800;
       line-height: 1.15;
       text-align: center;
+      overflow: hidden;
       opacity: 0;
       transform: translate(-50%, 10px);
       pointer-events: none;
       transition: opacity 180ms ease, transform 180ms ease;
     }
 
+    .note-badge::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg, transparent 18%, rgba(255, 255, 255, 0.34) 50%, transparent 78%);
+      opacity: 0;
+      transform: translateX(-120%);
+      pointer-events: none;
+    }
+
     .note-badge.is-visible {
       opacity: 1;
       transform: translate(-50%, 0);
+      animation: labSafeFlash 420ms linear 1;
+    }
+
+    .note-badge.is-visible::after {
+      opacity: 1;
+      animation: labShimmerSweep 900ms ease-in-out;
     }
 
     .guide-panel {
@@ -1031,6 +1081,32 @@
 
       50% {
         transform: rotate(5deg);
+      }
+    }
+
+    @keyframes labFloatBox {
+      to {
+        transform: translateY(-6px);
+      }
+    }
+
+    @keyframes labShimmerSweep {
+      to {
+        transform: translateX(115%) rotate(0.001deg);
+      }
+    }
+
+    @keyframes labSafeFlash {
+      50% {
+        opacity: 0.72;
+        transform: translate(-50%, 0) scale(0.97);
+      }
+    }
+
+    @keyframes labBurstPop {
+      to {
+        transform: translate(var(--tx), var(--ty)) scale(0.22);
+        opacity: 0;
       }
     }
 
@@ -1440,7 +1516,8 @@
       tine.classList.remove("is-active");
       void tine.offsetWidth;
       tine.classList.add("is-active");
-      window.setTimeout(() => tine.classList.remove("is-active"), 520);
+      createTineBurst(tine);
+      window.setTimeout(() => tine.classList.remove("is-active"), 680);
     }
 
     function playNote(noteId) {
@@ -1448,6 +1525,32 @@
       playSound(noteId);
       activateTine(noteId);
       showNoteBadge(noteId);
+    }
+
+    function createTineBurst(tine) {
+      const effect = tine.querySelector(".tine-svg-effect");
+      if (!effect) return;
+      const burstVectors = [
+        ["-18px", "-24px", "3.5"],
+        ["18px", "-23px", "3"],
+        ["-22px", "4px", "2.8"],
+        ["22px", "4px", "2.8"],
+        ["-10px", "24px", "3"],
+        ["10px", "24px", "3.4"]
+      ];
+      burstVectors.forEach(([tx, ty, radius], index) => {
+        const dot = createSvgNode("circle", {
+          class: "svg-burst-dot",
+          cx: "50",
+          cy: "130",
+          r: radius
+        });
+        dot.style.setProperty("--tx", tx);
+        dot.style.setProperty("--ty", ty);
+        dot.style.animationDelay = `${index * 24}ms`;
+        dot.addEventListener("animationend", () => dot.remove(), { once: true });
+        effect.append(dot);
+      });
     }
 
     function createRipple(button, event) {
@@ -1719,6 +1822,9 @@
       }
       if (document.querySelectorAll(".cute-bg-svg").length < 2 || !stylesheetContains(/@keyframes\s+cuteBgFloat/) || !stylesheetContains(/@keyframes\s+cuteBgTwinkle/)) {
         errors.push("Missing cute background SVG and CSS animation");
+      }
+      if (!stylesheetContains(/@keyframes\s+labBurstPop/) || !stylesheetContains(/@keyframes\s+labShimmerSweep/) || !stylesheetContains(/@keyframes\s+labFloatBox/) || typeof createTineBurst !== "function") {
+        errors.push("Missing Animation Test inspired effects");
       }
       document.documentElement.dataset.selfTest = errors.length ? "failed" : "passed";
       if (errors.length) {
