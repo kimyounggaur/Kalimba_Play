@@ -118,12 +118,83 @@
       text-align: center;
     }
 
+    .header-title-row {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(7px, 1.8cqw, 12px);
+      min-width: 0;
+      max-width: 100%;
+      justify-self: center;
+    }
+
     .app-title {
       margin: 0;
       color: var(--brown);
       font-size: clamp(1.45rem, 4.2cqh, 2.05rem);
       line-height: 1.08;
       letter-spacing: 0;
+    }
+
+    .header-mascot {
+      flex: 0 0 auto;
+      width: clamp(52px, 12cqw, 76px);
+      aspect-ratio: 1.18;
+      filter: drop-shadow(0 8px 10px rgba(90, 64, 52, 0.16));
+      pointer-events: none;
+    }
+
+    .top-bar .header-mascot {
+      width: clamp(42px, 9.8cqw, 58px);
+    }
+
+    .alpaca-drum-svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .alpaca-drum-svg .alpaca-body {
+      animation: alpacaBodyBob 1100ms ease-in-out infinite;
+      transform-origin: 60px 54px;
+    }
+
+    .alpaca-drum-svg .alpaca-ear {
+      animation: alpacaEarWiggle 1300ms ease-in-out infinite;
+      transform-origin: center bottom;
+    }
+
+    .alpaca-drum-svg .alpaca-ear-right {
+      animation-delay: 160ms;
+    }
+
+    .alpaca-drum-svg .alpaca-mallet-left {
+      animation: alpacaMalletTap 520ms cubic-bezier(0.34, 0, 0.2, 1) infinite;
+      transform-origin: 42px 57px;
+    }
+
+    .alpaca-drum-svg .alpaca-mallet-right {
+      animation: alpacaMalletTapAlt 520ms cubic-bezier(0.34, 0, 0.2, 1) infinite;
+      transform-origin: 78px 57px;
+    }
+
+    .alpaca-drum-svg .tongue-drum {
+      animation: alpacaDrumGlow 520ms ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    .alpaca-drum-svg .drum-note {
+      opacity: 0;
+      animation: alpacaNoteFloat 1040ms ease-out infinite;
+    }
+
+    .alpaca-drum-svg .drum-note-two {
+      animation-delay: 260ms;
+    }
+
+    .alpaca-drum-svg .drum-note-three {
+      animation-delay: 520ms;
     }
 
     .select-copy {
@@ -291,6 +362,16 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    .top-bar .header-title-row {
+      width: 100%;
+      justify-self: center;
+      overflow: hidden;
+    }
+
+    .top-bar .play-title {
+      flex: 1 1 auto;
     }
 
     .volume-control {
@@ -743,6 +824,88 @@
       }
     }
 
+    @keyframes alpacaBodyBob {
+      0%,
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-2px) rotate(-1deg);
+      }
+    }
+
+    @keyframes alpacaEarWiggle {
+      0%,
+      100% {
+        transform: rotate(0deg);
+      }
+
+      46% {
+        transform: rotate(-5deg);
+      }
+    }
+
+    @keyframes alpacaMalletTap {
+      0%,
+      100% {
+        transform: rotate(-16deg) translateY(-1px);
+      }
+
+      44% {
+        transform: rotate(10deg) translateY(6px);
+      }
+
+      54% {
+        transform: rotate(4deg) translateY(3px);
+      }
+    }
+
+    @keyframes alpacaMalletTapAlt {
+      0%,
+      100% {
+        transform: rotate(15deg) translateY(0);
+      }
+
+      48% {
+        transform: rotate(-11deg) translateY(6px);
+      }
+
+      58% {
+        transform: rotate(-4deg) translateY(3px);
+      }
+    }
+
+    @keyframes alpacaDrumGlow {
+      0%,
+      100% {
+        filter: drop-shadow(0 0 0 rgba(232, 143, 118, 0));
+        transform: scale(1);
+      }
+
+      48% {
+        filter: drop-shadow(0 0 7px rgba(232, 143, 118, 0.55));
+        transform: scale(1.035);
+      }
+    }
+
+    @keyframes alpacaNoteFloat {
+      0% {
+        opacity: 0;
+        transform: translateY(7px) scale(0.72);
+      }
+
+      34% {
+        opacity: 0.9;
+        transform: translateY(0) scale(1);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-16px) scale(0.72);
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
@@ -766,7 +929,52 @@
   <main id="app" aria-label="칼림바 연주 웹앱">
     <section id="selectScreen" class="screen select-screen" aria-labelledby="selectTitle">
       <header class="select-header">
-        <h1 id="selectTitle" class="app-title">칼림바 연주하기</h1>
+        <div class="header-title-row">
+          <h1 id="selectTitle" class="app-title">칼림바 연주하기</h1>
+          <span class="header-mascot" aria-hidden="true">
+            <svg class="alpaca-drum-svg" viewBox="0 0 120 96" focusable="false">
+              <g class="drum-note drum-note-one">
+                <circle cx="27" cy="20" r="3.4" fill="#E88F76"></circle>
+                <path d="M31 18 C36 13 39 15 39 21" fill="none" stroke="#E88F76" stroke-width="3" stroke-linecap="round"></path>
+              </g>
+              <g class="drum-note drum-note-two">
+                <circle cx="92" cy="18" r="3" fill="#6FAE4A"></circle>
+                <path d="M96 16 C101 10 105 14 103 20" fill="none" stroke="#6FAE4A" stroke-width="3" stroke-linecap="round"></path>
+              </g>
+              <g class="drum-note drum-note-three">
+                <circle cx="101" cy="39" r="2.8" fill="#9AC9D6"></circle>
+                <path d="M104 37 C108 33 111 35 111 40" fill="none" stroke="#9AC9D6" stroke-width="2.7" stroke-linecap="round"></path>
+              </g>
+              <g class="alpaca-body">
+                <path class="alpaca-ear alpaca-ear-left" d="M40 18 L47 3 L55 22 Z" fill="#FDF7EC" stroke="#5A4034" stroke-width="3" stroke-linejoin="round"></path>
+                <path class="alpaca-ear alpaca-ear-right" d="M71 22 L81 3 L86 21 Z" fill="#FDF7EC" stroke="#5A4034" stroke-width="3" stroke-linejoin="round"></path>
+                <ellipse cx="62" cy="56" rx="37" ry="31" fill="#F8EFE4" stroke="#5A4034" stroke-width="3"></ellipse>
+                <circle cx="49" cy="42" r="15" fill="#FFFDF8"></circle>
+                <circle cx="72" cy="42" r="15" fill="#FFFDF8"></circle>
+                <ellipse cx="61" cy="52" rx="24" ry="19" fill="#FFFDF8"></ellipse>
+                <circle cx="53" cy="46" r="2.7" fill="#3A2E28"></circle>
+                <circle cx="69" cy="46" r="2.7" fill="#3A2E28"></circle>
+                <path d="M60 51 C62 53 64 51 64 51 M62 53 C59 57 55 56 54 53 M62 53 C65 57 69 56 70 53" fill="none" stroke="#3A2E28" stroke-width="2.2" stroke-linecap="round"></path>
+                <circle cx="44" cy="55" r="4" fill="#F3C9BE" opacity="0.85"></circle>
+                <circle cx="78" cy="55" r="4" fill="#F3C9BE" opacity="0.85"></circle>
+              </g>
+              <g class="alpaca-mallet-left">
+                <line x1="42" y1="61" x2="28" y2="81" stroke="#5A4034" stroke-width="4" stroke-linecap="round"></line>
+                <circle cx="27" cy="83" r="5" fill="#FFD66B" stroke="#5A4034" stroke-width="2.5"></circle>
+              </g>
+              <g class="alpaca-mallet-right">
+                <line x1="78" y1="61" x2="93" y2="81" stroke="#5A4034" stroke-width="4" stroke-linecap="round"></line>
+                <circle cx="95" cy="83" r="5" fill="#FFD66B" stroke="#5A4034" stroke-width="2.5"></circle>
+              </g>
+              <g class="tongue-drum">
+                <ellipse cx="61" cy="78" rx="31" ry="14" fill="#E88F76" stroke="#5A4034" stroke-width="3"></ellipse>
+                <path d="M43 78 C47 72 52 72 55 78" fill="none" stroke="#5A4034" stroke-width="2.2" stroke-linecap="round"></path>
+                <path d="M58 80 C58 72 64 70 66 79" fill="none" stroke="#5A4034" stroke-width="2.2" stroke-linecap="round"></path>
+                <path d="M72 78 C75 72 80 73 82 79" fill="none" stroke="#5A4034" stroke-width="2.2" stroke-linecap="round"></path>
+              </g>
+            </svg>
+          </span>
+        </div>
         <p class="select-copy">연주할 칼림바를 골라주세요</p>
       </header>
 
@@ -790,7 +998,52 @@
     <section id="playScreen" class="screen play-screen" aria-labelledby="playTitle" hidden>
       <header class="top-bar">
         <button id="backButton" class="top-button" type="button" aria-label="다시 선택">←</button>
-        <h2 id="playTitle" class="play-title">17키 칼림바</h2>
+        <div class="header-title-row">
+          <h2 id="playTitle" class="play-title">17키 칼림바</h2>
+          <span class="header-mascot" aria-hidden="true">
+            <svg class="alpaca-drum-svg" viewBox="0 0 120 96" focusable="false">
+              <g class="drum-note drum-note-one">
+                <circle cx="27" cy="20" r="3.4" fill="#E88F76"></circle>
+                <path d="M31 18 C36 13 39 15 39 21" fill="none" stroke="#E88F76" stroke-width="3" stroke-linecap="round"></path>
+              </g>
+              <g class="drum-note drum-note-two">
+                <circle cx="92" cy="18" r="3" fill="#6FAE4A"></circle>
+                <path d="M96 16 C101 10 105 14 103 20" fill="none" stroke="#6FAE4A" stroke-width="3" stroke-linecap="round"></path>
+              </g>
+              <g class="drum-note drum-note-three">
+                <circle cx="101" cy="39" r="2.8" fill="#9AC9D6"></circle>
+                <path d="M104 37 C108 33 111 35 111 40" fill="none" stroke="#9AC9D6" stroke-width="2.7" stroke-linecap="round"></path>
+              </g>
+              <g class="alpaca-body">
+                <path class="alpaca-ear alpaca-ear-left" d="M40 18 L47 3 L55 22 Z" fill="#FDF7EC" stroke="#5A4034" stroke-width="3" stroke-linejoin="round"></path>
+                <path class="alpaca-ear alpaca-ear-right" d="M71 22 L81 3 L86 21 Z" fill="#FDF7EC" stroke="#5A4034" stroke-width="3" stroke-linejoin="round"></path>
+                <ellipse cx="62" cy="56" rx="37" ry="31" fill="#F8EFE4" stroke="#5A4034" stroke-width="3"></ellipse>
+                <circle cx="49" cy="42" r="15" fill="#FFFDF8"></circle>
+                <circle cx="72" cy="42" r="15" fill="#FFFDF8"></circle>
+                <ellipse cx="61" cy="52" rx="24" ry="19" fill="#FFFDF8"></ellipse>
+                <circle cx="53" cy="46" r="2.7" fill="#3A2E28"></circle>
+                <circle cx="69" cy="46" r="2.7" fill="#3A2E28"></circle>
+                <path d="M60 51 C62 53 64 51 64 51 M62 53 C59 57 55 56 54 53 M62 53 C65 57 69 56 70 53" fill="none" stroke="#3A2E28" stroke-width="2.2" stroke-linecap="round"></path>
+                <circle cx="44" cy="55" r="4" fill="#F3C9BE" opacity="0.85"></circle>
+                <circle cx="78" cy="55" r="4" fill="#F3C9BE" opacity="0.85"></circle>
+              </g>
+              <g class="alpaca-mallet-left">
+                <line x1="42" y1="61" x2="28" y2="81" stroke="#5A4034" stroke-width="4" stroke-linecap="round"></line>
+                <circle cx="27" cy="83" r="5" fill="#FFD66B" stroke="#5A4034" stroke-width="2.5"></circle>
+              </g>
+              <g class="alpaca-mallet-right">
+                <line x1="78" y1="61" x2="93" y2="81" stroke="#5A4034" stroke-width="4" stroke-linecap="round"></line>
+                <circle cx="95" cy="83" r="5" fill="#FFD66B" stroke="#5A4034" stroke-width="2.5"></circle>
+              </g>
+              <g class="tongue-drum">
+                <ellipse cx="61" cy="78" rx="31" ry="14" fill="#E88F76" stroke="#5A4034" stroke-width="3"></ellipse>
+                <path d="M43 78 C47 72 52 72 55 78" fill="none" stroke="#5A4034" stroke-width="2.2" stroke-linecap="round"></path>
+                <path d="M58 80 C58 72 64 70 66 79" fill="none" stroke="#5A4034" stroke-width="2.2" stroke-linecap="round"></path>
+                <path d="M72 78 C75 72 80 73 82 79" fill="none" stroke="#5A4034" stroke-width="2.2" stroke-linecap="round"></path>
+              </g>
+            </svg>
+          </span>
+        </div>
         <label class="volume-control">
           <span aria-hidden="true">음량</span>
           <input id="volumeInput" type="range" min="0" max="1" step="0.01" value="0.78" aria-label="음량">
@@ -1278,6 +1531,9 @@
       }
       if (!stylesheetContains(/\.tine-svg-effect/) || !stylesheetContains(/@keyframes\s+tineSvgLine/) || typeof createTineSvgEffect !== "function") {
         errors.push("Missing active tine SVG animation");
+      }
+      if (document.querySelectorAll(".alpaca-drum-svg").length < 2 || !stylesheetContains(/@keyframes\s+alpacaMalletTap/)) {
+        errors.push("Missing header alpaca drum SVG animation");
       }
       document.documentElement.dataset.selfTest = errors.length ? "failed" : "passed";
       if (errors.length) {
