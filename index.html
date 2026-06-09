@@ -412,6 +412,7 @@
       animation: tineHoverPulse 980ms ease-in-out infinite;
     }
 
+    .tine:hover::after,
     .tine.is-active::after,
     .tine:focus-visible::after {
       opacity: 1;
@@ -1072,6 +1073,7 @@
       }
       if (typeof fitKalimbaStage !== "function") errors.push("Missing fitKalimbaStage");
       if (!stylesheetContains(/\.tine:hover::before/)) errors.push("Missing hover tine outline rule");
+      if (!stylesheetContains(/\.tine:hover::after/)) errors.push("Missing hover tine label rule");
       if (!stylesheetContains(/@keyframes\s+tineHoverPulse/)) errors.push("Missing tine hover pulse keyframes");
       document.documentElement.dataset.selfTest = errors.length ? "failed" : "passed";
       if (errors.length) {
