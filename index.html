@@ -93,13 +93,84 @@
       display: flex;
       flex-direction: column;
       min-height: 0;
+      overflow: hidden;
       opacity: 1;
       transform: translateY(0);
       transition: opacity 260ms ease, transform 260ms ease;
     }
 
+    .screen > :not(.cute-bg-scene) {
+      position: relative;
+      z-index: 1;
+    }
+
     .screen[hidden] {
       display: none;
+    }
+
+    .cute-bg-scene {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0.74;
+    }
+
+    .cute-bg-svg {
+      position: absolute;
+      inset: -4% -6%;
+      display: block;
+      width: 112%;
+      height: 108%;
+      overflow: visible;
+    }
+
+    .cute-bg-svg .bg-cloud,
+    .cute-bg-svg .bg-heart,
+    .cute-bg-svg .bg-note,
+    .cute-bg-svg .bg-star,
+    .cute-bg-svg .bg-sprout {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .cute-bg-svg .bg-cloud {
+      animation: cuteBgDrift 8800ms ease-in-out infinite;
+    }
+
+    .cute-bg-svg .bg-cloud-two {
+      animation-delay: -2200ms;
+      animation-duration: 10400ms;
+    }
+
+    .cute-bg-svg .bg-heart {
+      animation: cuteBgFloat 3600ms ease-in-out infinite;
+    }
+
+    .cute-bg-svg .bg-heart-two {
+      animation-delay: -1200ms;
+      animation-duration: 4300ms;
+    }
+
+    .cute-bg-svg .bg-note {
+      animation: cuteBgBounce 2600ms ease-in-out infinite;
+    }
+
+    .cute-bg-svg .bg-note-two {
+      animation-delay: -680ms;
+    }
+
+    .cute-bg-svg .bg-star {
+      animation: cuteBgTwinkle 1800ms ease-in-out infinite;
+    }
+
+    .cute-bg-svg .bg-star-two {
+      animation-delay: -560ms;
+    }
+
+    .cute-bg-svg .bg-sprout {
+      animation: cuteBgWiggle 2400ms ease-in-out infinite;
     }
 
     .select-screen {
@@ -906,6 +977,63 @@
       }
     }
 
+    @keyframes cuteBgDrift {
+      0%,
+      100% {
+        transform: translateX(-6px) translateY(0);
+      }
+
+      50% {
+        transform: translateX(8px) translateY(-5px);
+      }
+    }
+
+    @keyframes cuteBgFloat {
+      0%,
+      100% {
+        transform: translateY(0) rotate(-5deg) scale(1);
+      }
+
+      45% {
+        transform: translateY(-11px) rotate(6deg) scale(1.08);
+      }
+    }
+
+    @keyframes cuteBgBounce {
+      0%,
+      100% {
+        transform: translateY(0) rotate(-4deg);
+      }
+
+      50% {
+        transform: translateY(-8px) rotate(7deg);
+      }
+    }
+
+    @keyframes cuteBgTwinkle {
+      0%,
+      100% {
+        opacity: 0.28;
+        transform: scale(0.72) rotate(0deg);
+      }
+
+      48% {
+        opacity: 0.86;
+        transform: scale(1.12) rotate(16deg);
+      }
+    }
+
+    @keyframes cuteBgWiggle {
+      0%,
+      100% {
+        transform: rotate(-4deg);
+      }
+
+      50% {
+        transform: rotate(5deg);
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
@@ -928,6 +1056,33 @@
 <body>
   <main id="app" aria-label="칼림바 연주 웹앱">
     <section id="selectScreen" class="screen select-screen" aria-labelledby="selectTitle">
+      <div class="cute-bg-scene" aria-hidden="true">
+        <svg class="cute-bg-svg" viewBox="0 0 390 844" preserveAspectRatio="none" focusable="false">
+          <g class="bg-cloud bg-cloud-one" opacity="0.42">
+            <path d="M29 103 C34 87 51 87 56 101 C67 92 83 99 84 114 C97 116 101 132 89 140 L30 140 C17 139 13 120 29 103 Z" fill="#FFFDF8" stroke="#E6D7C8" stroke-width="2"></path>
+          </g>
+          <g class="bg-cloud bg-cloud-two" opacity="0.38">
+            <path d="M282 210 C288 193 306 195 311 209 C322 200 340 207 339 224 C353 227 354 244 340 251 L279 251 C264 248 266 226 282 210 Z" fill="#FFF8F1" stroke="#E6D7C8" stroke-width="2"></path>
+          </g>
+          <path class="bg-heart bg-heart-one" d="M318 80 C307 66 284 75 293 96 C300 112 318 124 318 124 C318 124 338 111 344 95 C352 74 328 66 318 80 Z" fill="#F3C9BE" opacity="0.7"></path>
+          <path class="bg-heart bg-heart-two" d="M62 642 C54 631 37 638 43 654 C49 667 62 676 62 676 C62 676 77 666 82 653 C89 637 70 631 62 642 Z" fill="#FFD66B" opacity="0.62"></path>
+          <g class="bg-note bg-note-one" opacity="0.62">
+            <circle cx="73" cy="246" r="6" fill="#6FAE4A"></circle>
+            <path d="M79 240 L79 207 C96 213 103 222 101 235" fill="none" stroke="#6FAE4A" stroke-width="6" stroke-linecap="round"></path>
+          </g>
+          <g class="bg-note bg-note-two" opacity="0.58">
+            <circle cx="313" cy="573" r="5" fill="#E88F76"></circle>
+            <path d="M318 568 L318 539 C334 543 339 552 337 563" fill="none" stroke="#E88F76" stroke-width="5" stroke-linecap="round"></path>
+          </g>
+          <path class="bg-star bg-star-one" d="M196 90 L202 104 L217 106 L206 116 L209 131 L196 124 L183 131 L186 116 L175 106 L190 104 Z" fill="#FFD66B" opacity="0.74"></path>
+          <path class="bg-star bg-star-two" d="M346 377 L351 388 L363 390 L354 398 L356 411 L346 405 L335 411 L338 398 L328 390 L341 388 Z" fill="#9AC9D6" opacity="0.7"></path>
+          <g class="bg-sprout bg-sprout-one" opacity="0.45">
+            <path d="M118 760 C118 736 129 723 145 712" fill="none" stroke="#6FAE4A" stroke-width="5" stroke-linecap="round"></path>
+            <path d="M119 744 C102 733 92 718 91 700 C111 704 124 719 119 744 Z" fill="#B7DFA3"></path>
+            <path d="M130 727 C146 719 163 719 175 729 C159 743 142 744 130 727 Z" fill="#CBE9BE"></path>
+          </g>
+        </svg>
+      </div>
       <header class="select-header">
         <div class="header-title-row">
           <h1 id="selectTitle" class="app-title">칼림바 연주하기</h1>
@@ -996,6 +1151,33 @@
     </section>
 
     <section id="playScreen" class="screen play-screen" aria-labelledby="playTitle" hidden>
+      <div class="cute-bg-scene" aria-hidden="true">
+        <svg class="cute-bg-svg" viewBox="0 0 390 844" preserveAspectRatio="none" focusable="false">
+          <g class="bg-cloud bg-cloud-one" opacity="0.34">
+            <path d="M30 112 C36 95 55 97 60 111 C72 101 89 109 89 125 C104 128 105 145 91 152 L29 152 C14 150 15 127 30 112 Z" fill="#FFFDF8" stroke="#E6D7C8" stroke-width="2"></path>
+          </g>
+          <g class="bg-cloud bg-cloud-two" opacity="0.3">
+            <path d="M286 692 C292 675 310 677 315 691 C327 681 344 689 344 705 C358 708 359 725 345 732 L282 732 C268 729 270 707 286 692 Z" fill="#FFF8F1" stroke="#E6D7C8" stroke-width="2"></path>
+          </g>
+          <path class="bg-heart bg-heart-one" d="M327 98 C317 84 294 92 303 113 C309 129 327 141 327 141 C327 141 348 127 353 112 C361 91 337 84 327 98 Z" fill="#F3C9BE" opacity="0.54"></path>
+          <path class="bg-heart bg-heart-two" d="M54 565 C46 553 28 561 35 577 C41 590 54 600 54 600 C54 600 70 588 75 576 C82 560 62 553 54 565 Z" fill="#FFD66B" opacity="0.48"></path>
+          <g class="bg-note bg-note-one" opacity="0.48">
+            <circle cx="72" cy="230" r="6" fill="#6FAE4A"></circle>
+            <path d="M78 224 L78 191 C95 197 102 206 100 219" fill="none" stroke="#6FAE4A" stroke-width="6" stroke-linecap="round"></path>
+          </g>
+          <g class="bg-note bg-note-two" opacity="0.46">
+            <circle cx="318" cy="464" r="5" fill="#E88F76"></circle>
+            <path d="M323 459 L323 430 C339 434 344 443 342 454" fill="none" stroke="#E88F76" stroke-width="5" stroke-linecap="round"></path>
+          </g>
+          <path class="bg-star bg-star-one" d="M202 83 L208 97 L223 99 L212 109 L215 124 L202 117 L189 124 L192 109 L181 99 L196 97 Z" fill="#FFD66B" opacity="0.58"></path>
+          <path class="bg-star bg-star-two" d="M343 350 L348 361 L360 363 L351 371 L353 384 L343 378 L332 384 L335 371 L325 363 L338 361 Z" fill="#9AC9D6" opacity="0.54"></path>
+          <g class="bg-sprout bg-sprout-one" opacity="0.36">
+            <path d="M120 778 C120 754 131 741 147 730" fill="none" stroke="#6FAE4A" stroke-width="5" stroke-linecap="round"></path>
+            <path d="M121 762 C104 751 94 736 93 718 C113 722 126 737 121 762 Z" fill="#B7DFA3"></path>
+            <path d="M132 745 C148 737 165 737 177 747 C161 761 144 762 132 745 Z" fill="#CBE9BE"></path>
+          </g>
+        </svg>
+      </div>
       <header class="top-bar">
         <button id="backButton" class="top-button" type="button" aria-label="다시 선택">←</button>
         <div class="header-title-row">
@@ -1534,6 +1716,9 @@
       }
       if (document.querySelectorAll(".alpaca-drum-svg").length < 2 || !stylesheetContains(/@keyframes\s+alpacaMalletTap/)) {
         errors.push("Missing header alpaca drum SVG animation");
+      }
+      if (document.querySelectorAll(".cute-bg-svg").length < 2 || !stylesheetContains(/@keyframes\s+cuteBgFloat/) || !stylesheetContains(/@keyframes\s+cuteBgTwinkle/)) {
+        errors.push("Missing cute background SVG and CSS animation");
       }
       document.documentElement.dataset.selfTest = errors.length ? "failed" : "passed";
       if (errors.length) {
