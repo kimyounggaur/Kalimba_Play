@@ -352,7 +352,7 @@
       top: 0;
       height: 100%;
       border: 0;
-      border-radius: clamp(7px, 1.4cqw, 12px);
+      border-radius: 999px;
       background: transparent;
       cursor: pointer;
       pointer-events: auto;
@@ -363,12 +363,18 @@
     .tine::before {
       content: "";
       position: absolute;
-      inset: 1% 6%;
+      inset: 0 8%;
       border-radius: inherit;
-      background: linear-gradient(180deg, rgba(255, 214, 107, 0.62), rgba(255, 214, 107, 0.1));
-      box-shadow: 0 0 28px rgba(255, 214, 107, 0.82);
+      border: clamp(1px, 0.3cqw, 2px) solid rgba(255, 92, 158, 0.98);
+      background:
+        radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.55) 0 22%, rgba(255, 255, 255, 0) 38%),
+        linear-gradient(180deg, rgba(255, 118, 182, 0.22), rgba(255, 118, 182, 0.08));
+      box-shadow:
+        0 0 0 clamp(2px, 0.45cqw, 4px) rgba(255, 92, 158, 0.2),
+        0 0 clamp(16px, 3.6cqw, 28px) rgba(255, 92, 158, 0.72);
       opacity: 0;
-      transform: scaleY(0.72);
+      transform: scale(0.96, 0.985);
+      transform-origin: center;
       transition: opacity 140ms ease, transform 140ms ease;
     }
 
@@ -392,10 +398,12 @@
       transition: opacity 140ms ease, transform 140ms ease;
     }
 
+    .tine:hover::before,
     .tine.is-active::before,
     .tine:focus-visible::before {
       opacity: 1;
-      transform: scaleY(1);
+      transform: scale(1);
+      animation: tineHoverPulse 980ms ease-in-out infinite;
     }
 
     .tine.is-active::after,
@@ -565,6 +573,21 @@
       }
     }
 
+    @keyframes tineHoverPulse {
+      0%,
+      100% {
+        box-shadow:
+          0 0 0 clamp(2px, 0.45cqw, 4px) rgba(255, 92, 158, 0.18),
+          0 0 clamp(14px, 3.2cqw, 26px) rgba(255, 92, 158, 0.56);
+      }
+
+      50% {
+        box-shadow:
+          0 0 0 clamp(4px, 0.8cqw, 7px) rgba(255, 92, 158, 0.28),
+          0 0 clamp(22px, 5cqw, 40px) rgba(255, 92, 158, 0.88);
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
@@ -664,6 +687,7 @@
         image: "assets/play-17.png",
         alt: "17키 주황 고양이 칼림바 사진",
         order: ORDER_17,
+        tineHeights: [50, 56, 62, 68, 75, 82, 90, 98, 100, 98, 90, 82, 75, 68, 62, 56, 50],
         ratio: "218 / 277",
         band: { left: "7%", right: "93%", top: "6%", bottom: "60%" }
       },
@@ -672,6 +696,7 @@
         image: "assets/play-21.png",
         alt: "21키 벚꽃 우드 칼림바 사진",
         order: ORDER_21,
+        tineHeights: [48, 52, 56, 61, 66, 72, 78, 85, 92, 98, 100, 98, 92, 85, 78, 72, 66, 61, 56, 52, 48],
         ratio: "232 / 297",
         band: { left: "6%", right: "94%", top: "6%", bottom: "64%" }
       }
@@ -908,6 +933,7 @@
         tine.dataset.label = shortcut ? `${NOTE[noteId][1]} ${shortcut}` : NOTE[noteId][1];
         tine.style.left = `${index * width}%`;
         tine.style.width = `${width}%`;
+        tine.style.height = `${config.tineHeights[index]}%`;
         tine.setAttribute("role", "button");
         tine.setAttribute("aria-label", `${noteName(noteId)}, 단축키 ${shortcut || "없음"}`);
         tine.addEventListener("pointerdown", (event) => {
@@ -956,6 +982,16 @@
       guideToggle.textContent = isOpen ? "접기" : "표 보기";
     }
 
+    function stylesheetContains(pattern) {
+      return [...document.styleSheets].some((sheet) => {
+        try {
+          return [...sheet.cssRules].some((rule) => pattern.test(rule.cssText));
+        } catch {
+          return false;
+        }
+      });
+    }
+
     function runSelfTests() {
       const cases = [
         ["Digit1 mid 17", { code: "Digit1", shiftKey: false, ctrlKey: false, altKey: false, metaKey: false }, "17", "C4"],
@@ -981,6 +1017,20 @@
       [...ORDER_17, ...ORDER_21].forEach((noteId) => {
         if (!NOTE[noteId]) errors.push(`Missing NOTE ${noteId}`);
       });
+      Object.entries(CONFIG).forEach(([type, config]) => {
+        if (!Array.isArray(config.tineHeights)) {
+          errors.push(`Missing tineHeights for ${type}`);
+          return;
+        }
+        if (config.tineHeights.length !== config.order.length) {
+          errors.push(`tineHeights length mismatch for ${type}`);
+        }
+        config.tineHeights.forEach((height, index) => {
+          if (height < 45 || height > 100) errors.push(`Invalid tine height ${type}[${index}]`);
+        });
+      });
+      if (!stylesheetContains(/\.tine:hover::before/)) errors.push("Missing hover tine outline rule");
+      if (!stylesheetContains(/@keyframes\s+tineHoverPulse/)) errors.push("Missing tine hover pulse keyframes");
       document.documentElement.dataset.selfTest = errors.length ? "failed" : "passed";
       if (errors.length) {
         console.error("Kalimba self-test failed", errors);
