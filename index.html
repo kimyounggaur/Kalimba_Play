@@ -364,9 +364,11 @@
     .tine::before {
       content: "";
       position: absolute;
-      inset: 0 8%;
+      inset: 0 8% auto;
+      height: var(--tine-visual-height, 100%);
       border-radius: inherit;
       border: clamp(1px, 0.3cqw, 2px) solid rgba(255, 92, 158, 0.98);
+      box-sizing: border-box;
       background:
         radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.55) 0 22%, rgba(255, 255, 255, 0) 38%),
         linear-gradient(180deg, rgba(255, 118, 182, 0.22), rgba(255, 118, 182, 0.08));
@@ -953,7 +955,8 @@
         tine.dataset.label = shortcut ? `${NOTE[noteId][1]} ${shortcut}` : NOTE[noteId][1];
         tine.style.left = `${index * width}%`;
         tine.style.width = `${width}%`;
-        tine.style.height = `${config.tineHeights[index]}%`;
+        tine.style.height = "100%";
+        tine.style.setProperty("--tine-visual-height", `${config.tineHeights[index]}%`);
         tine.setAttribute("role", "button");
         tine.setAttribute("aria-label", `${noteName(noteId)}, 단축키 ${shortcut || "없음"}`);
         tine.addEventListener("pointerdown", (event) => {
@@ -1052,6 +1055,9 @@
           if (height < 45 || height > 100) errors.push(`Invalid tine height ${type}[${index}]`);
         });
       });
+      if (!stylesheetContains(/height:\s*var\(--tine-visual-height/)) {
+        errors.push("Missing separated tine visual height rule");
+      }
       if (typeof fitKalimbaStage !== "function") errors.push("Missing fitKalimbaStage");
       if (!stylesheetContains(/\.tine:hover::before/)) errors.push("Missing hover tine outline rule");
       if (!stylesheetContains(/@keyframes\s+tineHoverPulse/)) errors.push("Missing tine hover pulse keyframes");
