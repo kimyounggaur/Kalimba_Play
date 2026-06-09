@@ -387,6 +387,59 @@
       transition: opacity 120ms ease, transform 120ms ease;
     }
 
+    .tine-svg-effect {
+      position: absolute;
+      top: 0;
+      left: var(--tine-visual-inset-inline, 17%);
+      right: var(--tine-visual-inset-inline, 17%);
+      width: auto;
+      height: var(--tine-visual-height, 100%);
+      z-index: 2;
+      border-radius: inherit;
+      opacity: 0;
+      overflow: hidden;
+      pointer-events: none;
+      transform: scaleY(0.985);
+      transform-origin: center;
+      transition: opacity 110ms ease, transform 110ms ease;
+    }
+
+    .tine-svg-effect .svg-energy-line {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.9);
+      stroke-width: 7;
+      stroke-linecap: round;
+      stroke-dasharray: 34 240;
+      filter: drop-shadow(0 0 6px rgba(255, 74, 153, 0.95));
+      opacity: 0.9;
+      animation: tineSvgLine 620ms cubic-bezier(0.35, 0, 0.2, 1) infinite;
+    }
+
+    .tine-svg-effect .svg-pulse-ring {
+      fill: none;
+      stroke: rgba(255, 88, 163, 0.9);
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-dasharray: 11 16;
+      transform-origin: 50px 130px;
+      animation: tineSvgRing 780ms ease-in-out infinite;
+    }
+
+    .tine-svg-effect .svg-spark {
+      fill: rgba(255, 255, 255, 0.92);
+      filter: drop-shadow(0 0 5px rgba(255, 78, 156, 0.9));
+      transform-origin: center;
+      animation: tineSvgSpark 700ms ease-in-out infinite;
+    }
+
+    .tine-svg-effect .svg-spark-two {
+      animation-delay: 110ms;
+    }
+
+    .tine-svg-effect .svg-spark-three {
+      animation-delay: 220ms;
+    }
+
     .tine::after {
       content: attr(data-label);
       position: absolute;
@@ -407,12 +460,27 @@
       transition: opacity 140ms ease, transform 140ms ease;
     }
 
+    .tine::before,
+    .tine::after {
+      z-index: 1;
+    }
+
+    .tine::after {
+      z-index: 3;
+    }
+
     .tine:hover::before,
     .tine.is-active::before,
     .tine:focus-visible::before {
       opacity: 1;
       transform: scale(1);
       animation: tineHoverPulse 720ms cubic-bezier(0.42, 0, 0.22, 1) infinite;
+    }
+
+    .tine.is-active .tine-svg-effect,
+    .tine:focus-visible .tine-svg-effect {
+      opacity: 1;
+      transform: scaleY(1);
     }
 
     .tine:hover::after,
@@ -618,6 +686,60 @@
           inset 0 0 clamp(8px, 1.8cqw, 15px) rgba(255, 92, 158, 0.48);
         filter: saturate(1.08) brightness(1);
         transform: scale(0.988);
+      }
+    }
+
+    @keyframes tineSvgLine {
+      0% {
+        stroke-dashoffset: 132;
+        opacity: 0.2;
+        transform: translateY(-5%);
+      }
+
+      42% {
+        stroke-dashoffset: 12;
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      100% {
+        stroke-dashoffset: -118;
+        opacity: 0.22;
+        transform: translateY(5%);
+      }
+    }
+
+    @keyframes tineSvgRing {
+      0% {
+        opacity: 0.15;
+        transform: scale(0.64) rotate(0deg);
+      }
+
+      45% {
+        opacity: 0.95;
+        transform: scale(1.02) rotate(16deg);
+      }
+
+      100% {
+        opacity: 0.12;
+        transform: scale(1.32) rotate(34deg);
+      }
+    }
+
+    @keyframes tineSvgSpark {
+      0% {
+        opacity: 0;
+        transform: translateY(16px) scale(0.55);
+      }
+
+      35% {
+        opacity: 1;
+        transform: translateY(0) scale(1.05);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-22px) scale(0.65);
       }
     }
 
@@ -883,7 +1005,7 @@
       tine.classList.remove("is-active");
       void tine.offsetWidth;
       tine.classList.add("is-active");
-      window.setTimeout(() => tine.classList.remove("is-active"), 240);
+      window.setTimeout(() => tine.classList.remove("is-active"), 520);
     }
 
     function playNote(noteId) {
@@ -975,6 +1097,55 @@
       choiceCards[0].focus({ preventScroll: true });
     }
 
+    function createSvgNode(tagName, attributes) {
+      const node = document.createElementNS("http://www.w3.org/2000/svg", tagName);
+      Object.entries(attributes).forEach(([name, value]) => {
+        node.setAttribute(name, value);
+      });
+      return node;
+    }
+
+    function createTineSvgEffect() {
+      const svg = createSvgNode("svg", {
+        class: "tine-svg-effect",
+        viewBox: "0 0 100 260",
+        "aria-hidden": "true",
+        focusable: "false"
+      });
+      svg.append(
+        createSvgNode("path", {
+          class: "svg-energy-line",
+          d: "M50 22 C38 58 62 90 50 126 C39 160 61 190 50 238"
+        }),
+        createSvgNode("ellipse", {
+          class: "svg-pulse-ring",
+          cx: "50",
+          cy: "130",
+          rx: "28",
+          ry: "48"
+        }),
+        createSvgNode("circle", {
+          class: "svg-spark svg-spark-one",
+          cx: "36",
+          cy: "96",
+          r: "5"
+        }),
+        createSvgNode("circle", {
+          class: "svg-spark svg-spark-two",
+          cx: "65",
+          cy: "148",
+          r: "4"
+        }),
+        createSvgNode("circle", {
+          class: "svg-spark svg-spark-three",
+          cx: "46",
+          cy: "202",
+          r: "4.5"
+        })
+      );
+      return svg;
+    }
+
     function renderTines(config) {
       tineLayer.replaceChildren();
       const width = 100 / config.order.length;
@@ -996,6 +1167,7 @@
           event.preventDefault();
           playNote(noteId);
         });
+        tine.append(createTineSvgEffect());
         tineLayer.append(tine);
       });
     }
@@ -1103,6 +1275,9 @@
       if (!stylesheetContains(/@keyframes\s+tineHoverPulse/)) errors.push("Missing tine hover pulse keyframes");
       if (!stylesheetContains(/animation:\s*tineHoverPulse 720ms/) || !stylesheetContains(/background-position/) || !stylesheetContains(/filter:\s*saturate/)) {
         errors.push("Missing dynamic tine pulse rule");
+      }
+      if (!stylesheetContains(/\.tine-svg-effect/) || !stylesheetContains(/@keyframes\s+tineSvgLine/) || typeof createTineSvgEffect !== "function") {
+        errors.push("Missing active tine SVG animation");
       }
       document.documentElement.dataset.selfTest = errors.length ? "failed" : "passed";
       if (errors.length) {
